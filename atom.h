@@ -15,7 +15,7 @@ class atom{
 		void setr(double ra);
 		void setm(double m);
 		void setv(std::vector<double> v);
-                void setf(std::vector<double> f);
+        void setf(std::vector<double> f);
 		double getx();
 		double gety();
 		double getr();
@@ -23,9 +23,9 @@ class atom{
 		std::vector<double> getstress();
 		void printneighbor();
 		void printstress();
-                void printforce();
+        void printforce();
 		void printinfo();
-                void updateforce(std::vector<atom>& atomall);
+        void updateforce(std::vector<atom>& atomall);
 		double updateposition(double);
     friend double distance(atom&,atom&);
     friend double potential(atom&,atom&);

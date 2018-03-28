@@ -48,9 +48,7 @@ void atom::printstress(){
 	std::cout<<stresstensor[2]<<" "<<stresstensor[3]<<std::endl;
 }
 void atom::printinfo(){
-	std::cout<<"for atom position ("<<x<<","<<y<<")"<<std::endl;
-	printneighbor();
-	printstress();
+	std::cout<<x<<" "<<y<<" "<<speed[0]<<" "<<speed[1]<<" "<<force[0]<<" "<<force[1]<<std::endl;
 }
 double distance(atom& one,atom& two){
 	double r=(one.x-two.x)*(one.x-two.x)+(one.y-two.y)*(one.y-two.y);

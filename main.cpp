@@ -9,7 +9,7 @@ int main(){
 	//***********************initialize the system********units SI**************************//
     int size=20;
     int N=size*size;
-    double delta_t=1e10;//units s
+    double delta_t=1e-14;//units s, typically this is about 0.01 ps.
     double maxdis=0.0;
     std::vector<atom> atomall(N);
     int temp;
@@ -31,11 +31,10 @@ int main(){
     //**********************end initialize ****************************************//
     updatelist(atomall,r_cut);
     int count=0;
-    double t_before=0.0;
-    double t_end=0.0;
-    double tc=10;
+    double temp_before=0.0;
+    double temp_now=0.0;
     do{
-        t_before=t_end;
+        temp_before=temp_now;
         /*force has already been updated on the updateallposition*/
         maxdis=updateallposition(atomall,delta_t);
         //****verletrun contains velocity update and force update****//
@@ -49,11 +48,14 @@ int main(){
             r_shell=r_shell-2*maxdis;
         }
         count++;
-        t_end=temperature(atomall);
-        if(t_end>tc){
-         freeze(atomall);
-         if(tc>2)  tc=tc-1;
+        temp_now=temperature(atomall);
+        if((temp_now-temp_before)< 0){
+            if(temp_now < 2) break;
+            freeze(atomall);
+            temp_now=temperature(atomall);
         }
-        std::cout<<count<<" temp= "<<t_end<<std::endl;
-    }while(std::fabs(t_end-t_before)>0.01 || tc>1);
+    }while(1);
+    for(size_t i=0;i<size*size;i++){
+        atomall[i].printinfo();
+    }
 }
