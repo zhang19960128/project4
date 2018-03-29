@@ -39,8 +39,12 @@ class atom{
     friend std::fstream& operator<<(std::fstream& fs,atom& output);
     friend double allpotential(std::vector<atom>& allatom);
     friend void verletrun(double delta_t,std::vector<atom>& allatom);
+    friend void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps);
     friend void freeze(std::vector<atom>& allatom);
+    friend void settemp(double t,std::vector<atom>& allatom);
     friend double temperature(std::vector<atom>& allatom);
+    friend void cool(double delta_t,double r_verlet,std::vector<atom>& allatom);
+    friend void equilibrium(double delta_t,double r_verlet,std::vector<atom>& allatom);
 	private:
 		double mass;
 		double x;

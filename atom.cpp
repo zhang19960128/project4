@@ -43,9 +43,7 @@ void atom::printneighbor(){
 		}
 	}
 void atom::printstress(){
-	std::cout<<"the stress tensor is: (sigma_xx,sigma_xy;sigma_yx,sigma_yy):"<<std::endl;
-	std::cout<<stresstensor[0]<<" "<<stresstensor[1]<<std::endl;
-	std::cout<<stresstensor[2]<<" "<<stresstensor[3]<<std::endl;
+	std::cout<<stresstensor[0]<<" "<<stresstensor[1]<<" "<<stresstensor[2]<<" "<<stresstensor[3]<<std::endl;
 }
 void atom::printinfo(){
 	std::cout<<x<<" "<<y<<" "<<speed[0]<<" "<<speed[1]<<" "<<force[0]<<" "<<force[1]<<std::endl;
@@ -252,4 +250,110 @@ void freeze(std::vector<atom>& allatom){
       allatom[i].speed[0]=0.0;
       allatom[i].speed[1]=0.0;
    }
+}
+void settemp(double t,std::vector<atom>& allatom){
+  int size=allatom.size();
+  double temp=temperature(allatom);
+  for(size_t i=0;i<size;i++){
+   for(size_t j=0;j<2;j++){
+      allatom[i].speed[j]=allatom[i].speed[j]*sqrt(t/temp);
+   }
+  }
+}
+void cool(double delta_t,double r_verlet,std::vector<atom>& atomall){
+   double r_shell_initial=r_verlet-r_cut;
+   double r_shell=r_shell_initial;
+    updatelist(atomall,r_cut);
+    int count=0;
+    double temp_before=0.0;
+    double temp_now=0.0;
+    double maxdis=0.0;
+    int neg_count=5;
+    double p_before=0.0;
+    double p_end=0.0;
+    do{
+       p_before=p_end;
+        temp_before=temp_now;
+        /*force has already been updated on the updateallposition*/
+        maxdis=updateallposition(atomall,delta_t);
+        //****verletrun contains velocity update and force update****//
+        verletrun(delta_t,atomall);
+        updatelist(atomall,r_cut);
+        if(maxdis*2>r_shell){
+            updatelist(atomall,r_verlet);
+            r_shell=r_shell_initial;
+        }
+        else{
+            r_shell=r_shell-2*maxdis;
+        }
+        count++;
+        temp_now=temperature(atomall);
+        if((temp_now-temp_before)< 0){
+            neg_count++;
+         //   if(temp_now < 2) break;
+            if(neg_count>2){
+               freeze(atomall);
+               neg_count=0;
+            }
+            temp_now=temperature(atomall);
+        }
+        p_end=allpotential(atomall);
+    }while(std::fabs((p_end-p_before)/p_end)>1e-9);
+}
+void equilibrium(double delta_t,double r_verlet,std::vector<atom>& atomall){
+    double r_shell_initial=r_verlet-r_cut;
+    double r_shell=r_shell_initial;
+    updatelist(atomall,r_cut);
+    int count=0;
+    double temp_before=0.0;
+    double temp_now=0.0;
+    double maxdis=0.0;
+    int neg_count=5;
+    do{
+        temp_before=temp_now;
+        /*force has already been updated on the updateallposition*/
+        maxdis=updateallposition(atomall,delta_t);
+        //****verletrun contains velocity update and force update****//
+        verletrun(delta_t,atomall);
+        updatelist(atomall,r_cut);
+        if(maxdis*2>r_shell){
+            updatelist(atomall,r_verlet);
+            r_shell=r_shell_initial;
+        }
+        else{
+            r_shell=r_shell-2*maxdis;
+        }
+        count++;
+        temp_now=temperature(atomall);
+        std::cout<<temp_now<<std::endl;
+    }while(1);
+}
+void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps){
+    double r_shell_initial=r_verlet-r_cut;
+    double r_shell=r_shell_initial;
+    updatelist(atomall,r_cut);
+    int count=0;
+    double temp_before=0.0;
+    double temp_now=0.0;
+    double maxdis=0.0;
+    int neg_count=5;
+    do{
+        count++;
+        temp_before=temp_now;
+        /*force has already been updated on the updateallposition*/
+        maxdis=updateallposition(atomall,delta_t);
+        //****verletrun contains velocity update and force update****//
+        verletrun(delta_t,atomall);
+        updatelist(atomall,r_cut);
+        if(maxdis*2>r_shell){
+            updatelist(atomall,r_verlet);
+            r_shell=r_shell_initial;
+        }
+        else{
+            r_shell=r_shell-2*maxdis;
+        }
+        count++;
+        temp_now=temperature(atomall);
+        settemp(t,atomall);
+    }while(count<steps);
 }
