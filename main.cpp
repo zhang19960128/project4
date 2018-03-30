@@ -30,7 +30,7 @@ int main(){
     //**********************end initialize ****************************************//
     cool(delta_t,r_verlet,atomall);
     updatetensor(atomall);
-    ntsimu(delta_t,r_verlet,80,atomall,10000);
+    //ntsimu(delta_t,r_verlet,80,atomall,10000);
     for(size_t i=0;i<size*size;i++){
         atomall[i].printinfo();
     }

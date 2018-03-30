@@ -161,15 +161,22 @@ double updateallposition(std::vector<atom>& atomall,double delta_t){
    }
     return maxdis;
 }
-void verletrun(double delta_t,std::vector<atom>& allatom){
+double verletrun(double delta_t,std::vector<atom>& allatom){
    int size=allatom.size();
+   double maxdis=0.0;
+   double tempdis=0.0;
    std::vector<double> f_before(2,0.0);
    for(size_t i=0;i<size;i++){
       f_before=allatom[i].force;
+      tempdis=allatom[i].updateposition(delta_t);
+      if(tempdis>maxdis){
+         maxdis=tempdis;
+      }
       allatom[i].updateforce(allatom);
       allatom[i].speed[0]=allatom[i].speed[0]+delta_t/2/allatom[i].mass*(allatom[i].force[0]+f_before[0]);
       allatom[i].speed[1]=allatom[i].speed[1]+delta_t/2/allatom[i].mass*(allatom[i].force[1]+f_before[1]);
    }
+   return maxdis;
 }
 void updatetensor(std::vector<atom>& atomall){
     std::vector<double> temp(4,0);
@@ -272,12 +279,11 @@ void cool(double delta_t,double r_verlet,std::vector<atom>& atomall){
     double p_before=0.0;
     double p_end=0.0;
     do{
-       p_before=p_end;
+        p_before=p_end;
         temp_before=temp_now;
         /*force has already been updated on the updateallposition*/
-        maxdis=updateallposition(atomall,delta_t);
         //****verletrun contains velocity update and force update****//
-        verletrun(delta_t,atomall);
+        maxdis=verletrun(delta_t,atomall);
         updatelist(atomall,r_cut);
         if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
@@ -311,10 +317,8 @@ void equilibrium(double delta_t,double r_verlet,std::vector<atom>& atomall){
     int neg_count=5;
     do{
         temp_before=temp_now;
-        /*force has already been updated on the updateallposition*/
-        maxdis=updateallposition(atomall,delta_t);
         //****verletrun contains velocity update and force update****//
-        verletrun(delta_t,atomall);
+        maxdis=verletrun(delta_t,atomall);
         updatelist(atomall,r_cut);
         if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
@@ -340,10 +344,8 @@ void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,i
     do{
         count++;
         temp_before=temp_now;
-        /*force has already been updated on the updateallposition*/
-        maxdis=updateallposition(atomall,delta_t);
         //****verletrun contains velocity update and force update****//
-        verletrun(delta_t,atomall);
+        maxdis=verletrun(delta_t,atomall);
         updatelist(atomall,r_cut);
         if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
