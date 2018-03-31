@@ -9,7 +9,7 @@ int main(){
 	//***********************initialize the system********units SI**************************//
     int size=20;
     int N=size*size;
-    double delta_t=2*1e-14;//units s, typically this is about 0.01 ps.
+    double delta_t=0.2*1e-14;//units s, typically this is about 0.02 ps.
     std::vector<atom> atomall(N);
     int temp;
     double r_verlet=1.2*r_cut;
@@ -28,10 +28,8 @@ int main(){
         atomall[temp].setf(initial);
        }
     //**********************end initialize ****************************************//
-    cool(delta_t,r_verlet,atomall);
-    updatetensor(atomall);
-    //ntsimu(delta_t,r_verlet,80,atomall,10000);
-    for(size_t i=0;i<size*size;i++){
-        atomall[i].printinfo();
-    }
+      cool(delta_t,r_verlet,atomall);
+      updatetensor(atomall);
+      ntsimu(delta_t,r_verlet,5,atomall,80000);
+      print_radial_dis(1e-8*1e-10,4*1e-8,atomall,"ra5.txt");
 }
