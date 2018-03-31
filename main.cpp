@@ -29,7 +29,14 @@ int main(){
        }
     //**********************end initialize ****************************************//
       cool(delta_t,r_verlet,atomall);
+      double t=80.1;
+      ntsimu(delta_t,r_verlet,t,atomall,30000);
+      int steps=5000;
+      double sum=0;
+      for(size_t i=0;i<steps;i++){
+        ntsimu(delta_t,r_verlet,t,atomall,5);
+        sum=sum+allener(atomall);
+      }
       updatetensor(atomall);
-      ntsimu(delta_t,r_verlet,5,atomall,80000);
-      print_radial_dis(1e-8*1e-10,4*1e-8,atomall,"ra5.txt");
+      std::cout<<t<<" "<<sum/steps<<std::endl;
 }

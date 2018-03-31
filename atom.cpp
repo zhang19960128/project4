@@ -48,6 +48,10 @@ void atom::printstress(){
 void atom::printinfo(){
 	std::cout<<x<<" "<<y<<" "<<speed[0]<<" "<<speed[1]<<" "<<force[0]<<" "<<force[1]<<std::endl;
 }
+void atom::printforce(){
+    std::cout<<"F(x):"<<force[0]<<std::endl;
+    std::cout<<"F(y):"<<force[1]<<std::endl;
+}
 double distance(atom& one,atom& two){
 	double r=(one.x-two.x)*(one.x-two.x)+(one.y-two.y)*(one.y-two.y);
 	return sqrt(r);
@@ -144,6 +148,16 @@ double atom::updateposition(double delta_t){
    x=x+deltax;
    y=y+deltay;
    return sqrt(deltax*deltax+deltay*deltay);
+}
+double hydropressure(std::vector<atom> atomall){
+    int size=atomall.size();
+    double xx=0.0;
+    double yy=0.0;
+    for(size_t i=0;i<size;i++){
+        xx=xx+atomall[i].stresstensor[0];
+        yy=yy+atomall[i].stresstensor[3];
+    }
+    return xx+yy;
 }
 void updatelist(std::vector<atom>& input,double r_set){
     int size=input.size();
@@ -275,10 +289,6 @@ void print_radial_dis(double r_start,double r_stop,std::vector<atom>& atomall,st
         radis<<rinter[i]<<" "<<ra_dis_all[i]<<std::endl;
     }
     radis.close();
-}
-void atom::printforce(){
-    std::cout<<"F(x):"<<force[0]<<std::endl;
-    std::cout<<"F(y):"<<force[1]<<std::endl;
 }
 double temperature(std::vector<atom>& allatom){
    double sum=0;

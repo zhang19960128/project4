@@ -48,14 +48,15 @@ class atom{
     friend void cool(double delta_t,double r_verlet,std::vector<atom>& allatom);
     friend void equilibrium(double delta_t,double r_verlet,int steps,std::vector<atom>& allatom);
     friend void nesimu(double delta_t,double r_verlet,int steps,std::vector<atom>& atomall);
-	private:
+	friend double hydropressure(std::vector<atom> atomall);
+    private:
 		double mass;
 		double x;
 		double y;
 		double radius;
 		std::list<int> neighbor;
-    std::vector<double> force;
-    std::vector<double> stresstensor;
+        std::vector<double> force;
+        std::vector<double> stresstensor;
 		std::vector<double> speed;
 };
 int count(std::vector<atom> all,atom& input,double r);
