@@ -29,14 +29,8 @@ int main(){
        }
     //**********************end initialize ****************************************//
       cool(delta_t,r_verlet,atomall);
-      double t=80.1;
+      double t=5;
       ntsimu(delta_t,r_verlet,t,atomall,30000);
-      int steps=5000;
-      double sum=0;
-      for(size_t i=0;i<steps;i++){
-        ntsimu(delta_t,r_verlet,t,atomall,5);
-        sum=sum+allener(atomall);
-      }
-      updatetensor(atomall);
-      std::cout<<t<<" "<<sum/steps<<std::endl;
+      int steps=50000;
+      std::cout<<steps<<" "<<autocorrelate(delta_t,r_verlet,steps,5,atomall)<<std::endl;
 }
