@@ -388,13 +388,14 @@ void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,i
     double temp_before=0.0;
     double temp_now=0.0;
     double maxdis=0.0;
+		double screen=2.0;
     int neg_count=5;
     updatelist(atomall,r_cut);
     do{
         count++;
         temp_before=temp_now;
         //****verletrun contains velocity update and force update****//
-        maxdis=verletrun_standard(delta_t,atomall);
+        maxdis=verletrun(delta_t,atomall);
         if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
             r_shell=r_shell_initial;
@@ -404,7 +405,9 @@ void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,i
         }
         count++;
         temp_now=temperature(atomall);
+				if(std::fabs(temp_now-t)>screen){
         settemp(t,atomall);
+				}
     }while(count<steps);
 }
 void nesimu(double delta_t,double r_verlet,int steps,std::vector<atom>& atomall){
@@ -438,6 +441,7 @@ double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vect
     double temp_before=0.0;
     double temp_now=0.0;
     double maxdis=0.0;
+		double screen=2.0;
     updatelist(atomall,r_cut);
     std::vector<double> a(runtime,0.0);
     std::vector<std::vector<double>> allx(size,a);
@@ -454,7 +458,9 @@ double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vect
             r_shell=r_shell-2*maxdis;
         }
         temp_now=temperature(atomall);
-        settemp(t,atomall);
+				if(std::fabs(temp_now-t)>screen){
+             settemp(t,atomall);
+				}
         for(size_t j=0;j<size;j++){
             allx[j][i]=atomall[j].speed[0];
             ally[j][i]=atomall[j].speed[1];
