@@ -3,6 +3,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <fstream>
 void atom::setx(double x1){
 	x=x1;
 }
@@ -56,6 +57,12 @@ double distance(atom& one,atom& two){
 	double r=(one.x-two.x)*(one.x-two.x)+(one.y-two.y)*(one.y-two.y);
 	return sqrt(r);
 }
+double dxx(atom& one,atom& two){
+	return one.x-two.x;
+}
+double dyy(atom& one,atom& two){
+	return one.y-two.y;
+}
 double potential(atom& one,atom& two){
 	double r=(one.x-two.x)*(one.x-two.x)+(one.y-two.y)*(one.y-two.y);
 	r=sqrt(r);
@@ -80,6 +87,14 @@ double allpotential(std::vector<atom>& allatom){
        }
     }
     return sum/2;
+}
+atom& atom::operator =(atom& one){
+	this->mass=one.mass;
+	this->x=one.x;
+	this->y=one.y;
+	this->speed=one.speed;
+  this->force=one.force;
+	return *this;
 }
 double allener(std::vector<atom>& allatom){
     double poten=allpotential(allatom);
@@ -388,14 +403,15 @@ void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,i
     double temp_before=0.0;
     double temp_now=0.0;
     double maxdis=0.0;
-		double screen=2.0;
+		double screen=10.0;
     int neg_count=5;
     updatelist(atomall,r_cut);
+		settemp(t,atomall);
     do{
         count++;
         temp_before=temp_now;
         //****verletrun contains velocity update and force update****//
-        maxdis=verletrun(delta_t,atomall);
+        maxdis=verletrun_standard(delta_t,atomall);
         if(maxdis*2>r_shell){
             updatelist(atomall,r_verlet);
             r_shell=r_shell_initial;
@@ -405,6 +421,7 @@ void ntsimu(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,i
         }
         count++;
         temp_now=temperature(atomall);
+				std::cout<<temp_now<<std::endl;
 				if(std::fabs(temp_now-t)>screen){
         settemp(t,atomall);
 				}
@@ -441,7 +458,7 @@ double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vect
     double temp_before=0.0;
     double temp_now=0.0;
     double maxdis=0.0;
-		double screen=2.0;
+		double screen=1.0;
     updatelist(atomall,r_cut);
     std::vector<double> a(runtime,0.0);
     std::vector<std::vector<double>> allx(size,a);
@@ -483,4 +500,37 @@ double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vect
       sumy=sumy+correy[i];
     }
     return (sumx/size+sumy/size)/2;
+}
+void diffusive(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps){
+    double r_shell_initial=r_verlet-r_cut;
+    double r_shell=r_shell_initial;
+    int count=0;
+    double maxdis=0.0;
+		double screen=10.0;
+		double temp_now=0.0;
+		double dall=0.0;
+		std::fstream diff;
+		diff.open("diffusive.txt",std::fstream::out);
+		std::vector<atom> initial(atomall.size());
+		for(size_t i=0;i<atomall.size();i++){
+			initial[i]=atomall[i];
+		}
+    updatelist(atomall,r_cut);
+    do{
+        count++;
+        //****verletrun contains velocity update and force update****//
+        maxdis=verletrun_standard(delta_t,atomall);
+        if(maxdis*2>r_shell){
+            updatelist(atomall,r_verlet);
+            r_shell=r_shell_initial;
+        }
+        else{
+            r_shell=r_shell-2*maxdis;
+        }
+				dall=0.0;
+				for(size_t i=0;i<atomall.size();i++){
+					dall=dall+dxx(initial[i],atomall[i])*dxx(initial[i],atomall[i])+dyy(initial[i],atomall[i])*dyy(initial[i],atomall[i]);
+				}
+				diff<<count<<" "<<dall/atomall.size()<<std::endl;
+    }while(count<steps);
 }

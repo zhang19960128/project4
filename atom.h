@@ -27,7 +27,10 @@ class atom{
 		void printinfo();
         void updateforce(std::vector<atom>& atomall);
 		double updateposition(double);
+		atom& operator=(atom& one);
     friend double distance(atom&,atom&);
+		friend double dxx(atom&,atom&);
+		friend double dyy(atom&,atom&);
     friend double potential(atom&,atom&);
     friend void updatelist(std::vector<atom>&,double);
     friend void updatetensor(std::vector<atom>&);
@@ -50,14 +53,15 @@ class atom{
     friend void nesimu(double delta_t,double r_verlet,int steps,std::vector<atom>& atomall);
     friend double hydropressure(std::vector<atom> atomall);
     friend double autocorrelate(double delta_t,double r_verlet,int steps,double t,std::vector<atom>& atomall);
-        private:
+  	friend void diffusive(double delta_t,double r_verlet,double t,std::vector<atom>& atomall,int steps);
+	private:
 		double mass;
 		double x;
 		double y;
 		double radius;
 		std::list<int> neighbor;
-        std::vector<double> force;
-        std::vector<double> stresstensor;
+    std::vector<double> force;
+    std::vector<double> stresstensor;
 		std::vector<double> speed;
 };
 int count(std::vector<atom> all,atom& input,double r);
